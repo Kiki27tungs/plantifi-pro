@@ -1,17 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { DiseaseAnalysisResult } from "../types";
 
-// NOTE: In a production app, do not expose API keys on the client side.
-// This is for demonstration purposes as a "Serverless" app.
-// The user will need to provide their own key or a proxy should be used.
+// In Vercel, the environment variable is accessed via process.env.API_KEY
+// during build or if provided by the environment.
 const apiKey = process.env.API_KEY || ''; 
-
-const ai = new GoogleGenAI({ apiKey });
 
 export const analyzePlantImage = async (base64Image: string, language: string, symptoms?: string): Promise<DiseaseAnalysisResult> => {
   if (!apiKey) {
-    throw new Error("API Key is missing. Please set REACT_APP_GEMINI_API_KEY or allow user input.");
+    throw new Error("API Key is missing. Please set your API_KEY in the Vercel environment variables.");
   }
+
+  // Always create a fresh instance for Vercel deployment consistency
+  const ai = new GoogleGenAI({ apiKey });
 
   // Remove data URL prefix if present
   const cleanBase64 = base64Image.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
@@ -77,6 +77,6 @@ export const analyzePlantImage = async (base64Image: string, language: string, s
 
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
-    throw new Error("Failed to analyze image. Please try again.");
+    throw new Error("Failed to analyze image. Please check if your API key is valid and has billing enabled.");
   }
 };
